@@ -1,0 +1,18 @@
+#include<stdio.h>
+int my_strlen(const char *str)
+{
+	if(*str == '\0')
+	{
+		return 0;
+	}
+	else
+	{
+		return 1 + my_strlen(str + 1);
+	}
+}
+int main()
+{
+	char arr[] = "abcdefg";
+	printf("%d\n",my_strlen(arr));
+	return 0;
+}
