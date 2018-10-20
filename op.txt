@@ -1,0 +1,6 @@
+git config --global user.name "Shiny-Sub"
+git config --global user.email "239194147@qq.com"
+
+git add test.c
+git commit -m "first commite"
+git push
