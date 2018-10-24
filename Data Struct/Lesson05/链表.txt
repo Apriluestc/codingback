@@ -1,0 +1,33 @@
+链式存储：链表
+		：
+	：节点结构体
+
+	typedef int DataType;
+	typedef struct Node
+	{
+	    DataType data;
+	    struct Node* next;
+	}Node;	//是节点而不是链表
+
+	空的链表（链表里面一个节点都没有）
+
+	Node* p = NULL;
+	链表的初始化：构造一条空的链表
+	链表的销毁：销毁每一个节点
+
+	链表头插：
+	1、申请一个节点空间： malloc {0xF00 {0, NULL}
+
+	2、
+	2、1->2->3->4->5->NULL
+		:
+		p == 0x100
+			0x100 {1, 0x200}		0x200 {2, 0x900}
+			0x900 {3, 0x500}		0x500 {4, NULL}
+
+		:5->4->3->2->1->4->3->2->1
+
+	链表查找：
+
+	SListFind(Node* pNode)
+	void SListInsert(Node* *p, int pos, DataType data)
