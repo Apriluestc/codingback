@@ -1,0 +1,8 @@
+	show databases;								显示当前数据库
+	create databases helloworld;						创建数据库
+	create tables;								创建表
+	select * from helloworld;						查询数据库
+	insert into student (id, name, gender) values(1, '张健', '男');		插入
+	show engines								显示事务
+	show charset;								字符集
+
