@@ -1,0 +1,121 @@
+		表结构:
+		desc student;							查看表的逻辑结构
+		create table users (
+			field1 datatype,
+			field2 datatype,  
+			field3 datatype
+		) character set 字符集 collate 校验规则 engine 存储引擎;
+
+
+		create table users (
+			id int,
+	        	name varchar(20) comment '用户名',  
+			password char(32) comment '密码是32位的md5值',   
+			birthday date comment '生日'
+		) character set utf8 engine MyISAM;				创建表结构
+
+		desc users;							查看表结构
+		alter table user add (column datatype [DEFAULT expr][,column datatype]...);		添加
+
+		mysql> alter table users add assets varchar(100) comment '图片路径' after birthday;
+		mysql> desc users; 
+		+----------+--------------+------+-----+---------+-------+
+		| Field    | Type         | Null | Key | Default | Extra |
+		+----------+--------------+------+-----+---------+-------+
+		| id       | int(11)      | YES  |     | NULL    |       |
+		| name     | varchar(20)  | YES  |     | NULL    |       | 
+		| password | char(32)     | YES  |     | NULL    |       | 
+		| birthday | date         | YES  |     | NULL    |       |
+		| assets   | varchar(100) | YES  |     | NULL    |       |
+		+----------+--------------+------+-----+---------+-------+				表的逻辑结构
+
+		插入新字段后,对原来数据无影响
+
+		mysql> select * from users; 
+		+------+------+----------+------------+-------+ 
+		| id   | name | password | birthday   | assets|
+		+------+------+----------+------------+-------+ 
+		|    1 | a    | b        | 1982-01-04 | NULL  |<= 原来的数据仍然存在 
+		|    2 | b    | c        | 1984-01-04 | NULL  |
+		+------+------+----------+------------+-------+
+		alter table user modify (column datatype [DEFAULT expr][,column datatype]...);		修改 name 将其长度修改为 60 
+		
+		mysql> alter table users modify name varchar(60);
+		mysql> desc users;
+		+----------+--------------+------+-----+---------+-------+ 
+		| Field    | Type         | Null | Key | Default | Extra |
+		+----------+--------------+------+-----+---------+-------+ 
+		| id       | int(11)      | YES  |     | NULL    |       |
+		| name     | varchar(60)  | YES  |     | NULL    |       |<= 长度变成60 
+		| password | char(32)     | YES  |     | NULL    |       |
+		| birthday | date         | YES  |     | NULL    |       |
+		| assets   | varchar(100) | YES  |     | NULL    |       |
+		+----------+--------------+------+-----+---------+-------+
+
+		alter table user drop (column);								删除 password 这一列
+
+
+		mysql> alter table users drop password; 
+		mysql> desc users;
+		+----------+--------------+------+-----+---------+-------+ 
+		| Field    | Type         | Null | Key | Default | Extra | 
+		+----------+--------------+------+-----+---------+-------+
+		| id       | int(11)      | YES  |     | NULL    |       |
+		| name     | varchar(60)  | YES  |     | NULL    |       | 
+		| birthday | date         | YES  |     | NULL    |       | 
+		| assets   | varchar(100) | YES  |     | NULL    |       |
+		+----------+--------------+------+-----+---------+-------+
+		
+		mysql> alter table users rename to employee;						修改表名字
+		mysql> select * from employee;
+		+------+------+------------+--------+ 
+		| id   | name | birthday   | assets |
+		+------+------+------------+-------+|
+		|   1  | a    | 1982-01-04 | NULL   |  
+		|   2  | b    | 1984-01-04 | NULL   | 
+		+------+------+------------+--------+
+		
+				
+		数据类型:
+
+		float//double;
+		float[(m, d)] [unsigned] : M指定显示长度，d指定小数位数，占用空间4个字节
+		mysql> create table tt6(id int, salary float(4,2));
+		mysql> insert into tt6 values(101, -99.991); #多的这一点被拿掉了
+		mysql> select * from tt6;
+		+------+--------+ 
+		| id   | salary |
+		+------+--------+ 
+		|  100 | -99.99 |
+		|  101 | -99.99 |
+		+------+--------+									float 类型四舍五入
+
+		decimal:
+		decimal(m, d) [unsigned] : 定点数m指定长度，d表示小数点的位数
+
+
+		float 和 decimal 区别
+		decimal精度更高一点
+		float 精度大约是 7 位
+		decimal精度大约30位//均为小数部分
+
+		mysql> create table tt8 ( id int, salary float(10,8), salary2 decimal(10,8)); 
+		mysql> insert into tt8 values(100,23.12345612, 23.12345612); 
+
+		mysql> select * from tt8; 
+		+------+-------------+-------------+
+		| id   | salary      | salary2     |
+		+------+-------------+-------------+ 
+		|  100 | 23.12345695 | 23.12345612 | # 发现decimal的精度更准确，因此如果我们希望某个数据表 示高精度，选择decimal 
+		+------+-------------+-------------+
+
+
+
+		char:
+
+
+
+
+
+
+
