@@ -34,11 +34,21 @@ void DeleteNode(ListNode **pHead, ListNode *pToDeleted)
     //要删除的节点不是尾节点
     if(pToDeleted->m_pNext != NULL)
     {
+        
+        /*
+        pToDeleted->m_nValue = pToDeleted->m_pNext->m_nValue;
+        pToDeleted->m_pNext = pToDeleted->m_pNext->m_pNext;
+        delete pToDeleted->m_pNext;
+        pToDeleted->m_pNext;
+*/
+
+        
         ListNode *pNext = pToDeleted->m_pNext;
         pToDeleted->m_nValue = pNext->m_nValue;
         pToDeleted->m_pNext = pNext->m_pNext;
         delete pNext;
         pNext = NULL;
+        
     }
     //链表只有一个节点,删除头节点
     else if(*pHead == pToDeleted)

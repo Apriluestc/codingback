@@ -4,5 +4,10 @@
 	select * from helloworld;						查询数据库
 	insert into student (id, name, gender) values(1, '张健', '男');		插入
 	show engines								显示事务
-	show charset;								字符集
-
+	show charset;								查看数据库支持字符集
+	drop database helloworld;						删除数据库
+	create database test charset=utf8;					创建一个使用utf8的数据库
+	create database test charset=utf8 collate utf8_general_ci;		创建一个使用utf8的数据库,并带字符校验规则
+	show variables like 'character_set_database';				查看系统默认字符集以及校验规则
+	
+	
