@@ -1,0 +1,253 @@
+<span style="font-size:14px;">#define _CRT_SECURE_NO_WARNINGS 1         \\消除scanf不安全的警告  
+  
+#ifndef _CONTACT_H_                         
+#define _CONTACT_H_  
+#define NAME_MAX 20  
+#define SEX_MAX 3  
+#define TEL_MAX 20  
+#define ADDER_MAX 30  
+#define PEOPLE_MAX 3  
+  
+#include<stdio.h>  
+#include<stdlib.h>  
+#include<string.h>  
+  
+typedef struct people                   //定义通讯录保存的内容结构体  
+{  
+    char name[NAME_MAX];  
+    char sex[SEX_MAX];  
+    int age;  
+    char tel[TEL_MAX];  
+    char adder[ADDER_MAX];  
+}people;  
+  
+typedef struct contact                    //定义一个嵌套结构体。  
+{  
+    int capacity;  
+    people *human;  
+    int count_p;  
+}Con, *Pcon;  
+  
+void add_people(Pcon pcon);           //函数接口，实现增加联系人功能  
+int find_people(Pcon pcon);          //函数接口，实现查找联系人功能  
+void delete_people(Pcon pcon);       //函数接口，实现删除联系人功能  
+void alter_people(Pcon pcon);        //函数接口，实现修改联系人信息功能  
+void show_people(Pcon pcon);         //函数接口，实现显示所有联系人功能  
+void clean_people(Pcon pcon);           //函数接口， 实现清空联系人功能  
+void order_people(Pcon pcon);           //函数接口，实现以名字对联系人进行排序功能。  
+void init(Pcon pcon);                    //初始化结构体  
+void menu();                          //实现菜单功能  
+void free_mem(Pcon pcon);            //释放使用完的内存空间。  
+#endif  
+</span>  
+函数的实现：
+[cpp] view plain copy
+<span style="font-size:14px;">#include"head.h"  
+  
+  
+void menu()  
+{  
+    printf("*******************欢迎使用通讯录3.0   ***************\n");  
+    printf("                   1.添加联系人信息      \n");  
+    printf("                   2.删除指定联系人信息  \n");  
+    printf("                   3.查找指定联系人信息  \n");  
+    printf("                   4.修改指定联系人信息  \n");  
+    printf("                   5.显示所有联系人信息  \n");  
+    printf("                   6.清空所有联系人     \n");  
+    printf("                   7.以名字排序所有联系人\n");  
+    printf("                   8.退出\n");  
+    printf("******************************************************\n");  
+}  
+  
+void print(Pcon pcon, int i)        //打印联系人信息  
+{  
+    printf("|  姓名  |  性别  |  年龄  |    电话    |      住址     | \n");  
+    printf("|  %4s  |  %2s  |  %d  |  %6s  |  %6s  |\n", pcon->human[i].name, pcon->human[i].sex, pcon->human[i].age,  
+        pcon->human[i].tel, pcon->human[i].adder);  
+  
+}  
+  
+void add_people(Pcon pcon)  
+{  
+    people *p;  
+    if (pcon->count_p == pcon->capacity)      
+    {  
+        p = (people*)realloc(pcon->human, ((pcon->capacity) + 1)*sizeof(people)); //如果当前人数等于通讯录容量，则进行增容。  
+        if (p == NULL)  
+            printf("out of memery");  
+        else  
+            pcon->human = p;  
+    }  
+      
+      
+        printf("请输入添加联系人的姓名，性别，年龄，电话，住址：\n");  
+        scanf("%s", pcon->human[pcon->count_p].name);  
+        scanf("%s", pcon->human[pcon->count_p].sex);  
+        scanf("%d", &pcon->human[pcon->count_p].age);  
+        scanf("%s", pcon->human[pcon->count_p].tel);  
+        scanf("%s", pcon->human[pcon->count_p].adder);  
+        print(pcon, pcon->count_p);  
+        (pcon->count_p)++;  
+        printf("添加成功！\n");  
+}  
+  
+int find_people(Pcon pcon)  
+{  
+    char name[NAME_MAX];  
+    int i = 0;  
+    printf("请输入姓名：");  
+    scanf("%s", name);  
+    for (i = 0; i < pcon->count_p; i++)  
+    {  
+        if (strcmp(pcon->human[i].name, name) == 0)  
+        {  
+            print(pcon, i);  
+            return i;                  //若输入的姓名与联系人中的一个姓名相符，则返回该联系人的位置  
+        }  
+    }  
+    printf("不存在该联系人\n");  
+    return -1;  
+}  
+  
+void delete_people(Pcon pcon)  
+{  
+    int i = 0;  
+    int ret = find_people(pcon);  
+    if (ret != -1)  
+    {  
+        for (i = ret; i < pcon->count_p; i++)  
+        {  
+            pcon->human[i] = pcon->human[i + 1];     //采用移位删除法删除。  
+        }  
+        pcon->count_p--;  
+        printf("删除成功！\n");  
+  
+    }  
+    else  
+        printf("不存在该联系人！\n");  
+  
+}  
+  
+void alter_people(Pcon pcon)  
+{  
+    int ret = find_people(pcon);     //接收指定联系人位置  
+    if (ret != -1)  
+    {  
+        printf("请重新输入该联系人信息：\n");  
+        scanf("%s", pcon->human[ret].name);  
+        scanf("%s", pcon->human[ret].sex);  
+        scanf("%d", &pcon->human[ret].age);  
+        scanf("%s", pcon->human[ret].tel);  
+        scanf("%s", pcon->human[ret].adder);  
+        print(pcon, ret);  
+        printf("修改成功！\n");  
+  
+    }  
+}  
+  
+void show_people(Pcon pcon)  
+{  
+    int i = 0;  
+    for (i = 0; i < pcon->count_p; i++)  //循环打印全部联系人  
+    {  
+        print(pcon, i);  
+    }  
+}  
+  
+void clean_people(Pcon pcon)         //将人数置成0，即清空联系人  
+{  
+    pcon->count_p = 0;  
+    printf("成功清空！");  
+}  
+  
+void order_people(Pcon pcon)  
+{  
+    int i = 0;  
+    for (i = 0; i < (pcon->count_p) - 1; i++)    //这里采用冒泡排序  
+    {  
+        for (int j = 0; j<(pcon->count_p) - 1 - i; j++)  
+        {  
+            int min = 0;  
+            if (strcmp(pcon->human[j].name, pcon->human[j + 1].name)>0)  
+            {  
+                people temp = pcon->human[j];  
+                pcon->human[j] = pcon->human[j + 1];  
+                pcon->human[j + 1] = temp;  
+  
+            }  
+        }  
+    }  
+    printf("排序完成\n");  
+    show_people(pcon);  
+}  
+  
+  
+  
+void init(Pcon pcon)   //对结构体进行初始化。  
+{  
+    pcon->capacity = PEOPLE_MAX;  
+    people *p = (people *)malloc((pcon->capacity)*sizeof(people));   //动态开辟内存。  
+    if (p == NULL)  
+    {  
+        printf("out of memery");  
+    }  
+    else  
+        pcon->human = p;  
+    pcon->count_p = 0;  
+}  
+  
+void free_mem(Pcon pcon)        //释放内存空间。  
+{  
+    free(pcon->human);  
+    pcon->human = NULL;  
+}</span>  
+
+main函数部分：
+[cpp] view plain copy
+<span style="font-size:14px;">#include"head.h"  
+  
+int main()  
+{  
+    Con con;  
+    init(&con);  
+    int num = 0;  
+    menu();  
+    while (1)  
+    {  
+        printf("请输入你想执行的功能序号：");  
+        scanf("%d", &num);  
+        switch (num)  
+        {  
+        case 1:  
+            add_people(&con);  
+            break;  
+        case 2:  
+            delete_people(&con);  
+            break;  
+        case 3:  
+            find_people(&con);  
+            break;  
+        case 4:  
+            alter_people(&con);  
+            break;  
+        case 5:  
+            show_people(&con);  
+            break;  
+        case 6:  
+            clean_people(&con);  
+            break;  
+        case 7:  
+            order_people(&con);  
+            break;  
+        case 8:  
+            exit(0);  
+            break;  
+        default:  
+            printf("指令输入错误！");  
+            break;  
+        }  
+    }  
+    free_mem(&con);  
+    system("pause");  
+    return 0;  
+}</span>  
