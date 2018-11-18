@@ -1,0 +1,23 @@
+基本使用
+
+连接服务器：    mysql -h 127.0.0.1 -P 2206 -u root -p
+
+创建数据库：    create database helloworld;
+
+使用数据库：    use helloworld;
+
+创建数据库表：
+
+create table student（
+    id int,
+    name varchar(32),
+    gender varchar(32)
+);
+
+表中插入数据：    insert into student (id, name, gender) values (1, '张三', '男');
+
+查看表中的数据：    select * from student;
+
+查看引擎：    show engines;
+
+查看表结构：    desc student;
