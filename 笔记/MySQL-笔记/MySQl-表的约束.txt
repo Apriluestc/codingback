@@ -1,0 +1,121 @@
+空属性：null（默认的）和not null(不为空)
+
+null(为空)，not null(不为空)；
+
+create table myclass(    
+        class_name varchar(20) not null,
+        class_room varchar(10) not null
+);
+
+默认值：    default 用来设置默认值：age tinyint unsigned default 0, 年龄默认设置为 0
+
+create table tt10 (    
+        name varchar(20) not null,
+        age tinyint unsigned default 0,
+        sex char(2) default '男'
+);
+
+列描述：
+
+comment  '性别'--无实际含义，相当于注释
+
+create table tt12 (    
+        name varchar(20) not null comment '姓名',
+        age tinyint unsigned default 0 comment '年龄',    
+        sex char(2) default '男' comment '性别'
+）；
+
+通过 desc 查看不到注释--comment
+
+通过 show 可以看到：show create table student\G;
+
+zerofill：
+
+show create table tt3\G
+
+Table ：tt3
+create table tt3(
+        a int(10) unsigned default null,
+        b int(10) unsigned default null,
+);engine = MyISAM default charset = gbk;
+
+int(10) 里面的是 10 究竟是什么，其实它遇到 zerofill 才会显示其作用
+
+主键：
+
+primary key：用来唯一的约束该字段里面的数据，不可重复，不可为空并且一张表只能有一个主键
+
+主键所在的列通常都是整数类型；
+
+两种方式：在字段上直接指定主键：
+
+create table tt13 ( 
+        id int unsigned primary key comment '学号不能为空', 
+        name varchar(20) not null   
+);
+
+在创建表的时候，在所有字段之后，使用primary key(主键字段列表)来创建主键，如果有多个字段作为主 键，可以使用复合主键。
+
+create table tt14( 
+        id int unsigned, 
+        course char(10) comment '课程代码', 
+        score tinyint unsigned default 60 comment '成绩', 
+        primary key(id, course
+)； -- id和course为复合主键
+
+以上的方式实在创建表的时候进行添加主键：
+
+另一种：当表创建成功之后也可以追加主键：alter table 表名 add primary key(字段列表)；
+
+主键约束：主键对应的字段中不能重复
+
+主键删除：    alter table student drop primary key;
+
+自增长：
+
+1、任何一个字段要做自增长，前提是本身是一个索引（key一栏有值） 
+2、自增长字段必须是整数 
+3、一张表最多只能有一个自增长
+
+create table tt21(    
+        id int unsigned primary key auto_increment,
+        name varchar(10) not null default ''   
+);
+
+唯一键：
+
+unique :唯一键约束不可以重复
+
+create table user(
+        id int(10) unique comment '学号不能重复',
+        name varchar(32),
+);
+
+外键：
+
+外键用于定义主表和从表之间的关系：外键约束主要定义在从表上，主表则必须是有主键约束或unique约束。当 定义外键后，要求外
+
+键列数据必须在主表的主键列存在或为null
+
+语法：    foreign key (字段名) references 主表(列)；
+
+主键表：
+
+create table myclass (        
+        id int primary key,
+        name varchar(30) not null comment'班级名'    
+);
+
+从表：
+
+create table stu (
+        id int primary key,
+        name varchar(30) not null comment '学生名',
+        class_id int,
+        foreign key (class_id) references myclass(id)
+);
+
+正常插入数据：    insert into myclass values(10, 'C++大牛班'),(20, 'java大神班');
+
+                            insert into stu values(100, '张三', 10),(101, '李四',20);
+
