@@ -1,0 +1,126 @@
+套接字IP 初识IP 点分十进制IP 数据包头部包含：        1、源 IP         2、目的 IP 端口号二进制 16 位整数端口号用来标识一个进程, 告诉操作系统, 当前的这个数据要交给哪一个进程来处理; IP地址 + 端口号能够标识网络上的某一台主机的某一个进程; 一个端口号只能被一个进程占用.TCP UDP 协议了解特性的含义网络字节序字节序转换#include <arpa/inet.h>uint32_t htonl(uint32_t hostlong);uint32_t htons(uint16_t hostshort);uint32_t ntohl(uint32_t netlong);uint16_t ntohl(uint16_t netlong);socket 编程接口socket 常见 API 创建 socket ?文件描述符 (TCP/UDP, 客户端 + 服务器) int socket(int domain, int type, int protocol);绑定端?口号 (TCP/UDP, 服务器)      int bind(int socket, const struct sockaddr *address, socklen_t address_len);开始监听socket (TCP, 服务器) int listen(int socket, int backlog);接收请求 (TCP, 服务器) int accept(int socket, struct sockaddr* address, socklen_t* address_len);建?立连接 (TCP, 客户端) int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);UDP 服务端    server.c    （可写五子棋联机版）1、尝试从 socket 中读取客户端发送的请求（字符串）2、读到请求后根据请求内容，计算生成响应3、把响应写到 socket 之中，再传给客户端服务器可执行程序  IP 地址 端口号环回 IP端口号最好大于 1024 ，1-1023 知名端口号  最大端口号 65535并且和当前主机上其他进程使用的端口不重复AF_INET 表示 ipv4 版本的协议SOCK_DGRAM 表示创建的 socket 要使用面向数据报的方式传输对于一个正常的服务器来说，收到了用户的请求之后，就要根据用户的请求进行计算，得到结果响应给客户端由于我们写的是一个回显服务器，此时并没有计算的过程直接把结果给客户端1、socket 创建文件描述符        main 函数的返回值即进程的退出码2、bind 绑定端口号    把某个 socket（文件描述符）绑定在端口号上        struct sockaddr_in addr;    定义 IP 地址        addr.sin_family = AF_INET;    AF_INET  表示 ipv4 版本的协议          addr.sin_addr.s_addr = inet_addr(argv[1]);    赋值        addr.sin_port = htons(atoi(argv[2]);        int ret = bind(sock, (struct sockaddr*)&addr, sizeof(addr));    绑定3、while （1)    读取数据    服务器一直进行工作面向数据报的数据只能由 recvfrom 接收    即 recvfrom(sock, buf, sizeof(buf) - 1, 0,                                                                                     对端 IP 端口号，缓冲区的最大长度);ssize_t read_size = recvfrom();read_size < 0    接收失败    如何处理perror("recvfrom");    comtinue;buf[read_size] = '\0';    有初始化不加这条语句没什么问题加入没有初始化  后面的 printf(); 不知道在哪里停止char buf[1024] = {0};if(read_size < 0){    perror("recvfrom");    continue;)buf[read_size] = '\0';printf("[%s：%d] %s\n", inet_ntoa(peer.sin_addr),      ntohs(peer.sin_port), buf);    peer表示对端 IP 和端口号缓冲区最大长度 &len；表示接收对端 IP 端口号的缓冲区并不是接收数据的缓冲区4、将数据发送给客户端sendto(sock, buf, strlen(buf), 0, (struct sockaddr*)&peer, sizeof(peer));close(sock);        关闭文件描述符    （假如进程通过异常信号终止）UDP 客户端     client.c1、版本输入读入一个字符串2、把这个字符串通过 socket 发给服务端3、尝试从服务器响应数据4、把响应写到标准输出上5、如果客户端主动 bind 一个端口号，会有什么问题？        如果客户端主动绑定一个客户端的话，可能会和客户端上其他程序的的端口号冲突，导致程序不能正确运行如果借助操作系统自动分配，分配到的端口号一定是空闲的端口号6、不去显式的 bind 端口号，此时操作系统会自动分配给客户端一个闲置的端口号1、创建文件描述符表int sock = socket(AF_INET, SOCK_DARAM, 0);2、从标准输入读数据，发送给服务器；文件描述符：stdin：标准输入        [0]stdout：标准输出       [1]stderr：标准错误        [2]    ---宏    FILE* 文件指针    分配文件描述符char buf[1024] = {0};ssize_t read_size = read(0, buf, sizeof（buf) - 1,);if(read_size < 0){    perror("read");    return 1;}if(read_size == 0){    printf("read done!\n");    return 0;}buf[read_size] = '\0';3、把数据发送给服务器struct sockaddr_in addr;       server_-addr 定义 IP 地址        addr.sin_family = AF_INET;    AF_INET  表示 ipv4 版本的协议          addr.sin_addr.s_addr = inet_addr(argv[1]);    赋值        addr.sin_port = htons(atoi(argv[2]);sendto(sock, buf, strlen(buf), 0, (struct sockaddr*)&server_addr， sizeof(server_buf);4、尝试从服务器读取数据知道对端的 IP 和端口号，因为收到的数据一定是服务器发回来的，而服务器的对应 IP 和端口号已知；char buf_output[1024] = {0};read_size = recvfrom(sock, buf_output, sizeof(buf_out_put) - 1, 0, NULL, NULL);5、把读到的数据写到标准输出上close(sock);服务器应对客户端的请求应答做出计算：拓展GOTOgoto END;·······································END:        close(sock);使用 goto 尽量往后跳，否则会出现循环netstat -anp 查看本机网络状态文件描述符打开的文件描述符一定要关闭scp server test@114.115.172.211:/home/testscp 远程拷贝一个简单的 Shell 脚本vim deploy.shsh deploy.sh    运行 shell 脚本shell 脚本就是将一系列命令行所要写的命令组织起来进行包装依次运行TCP 服务器 server.c1、创建文件描述符int sock = socket(AF_INET, SOCK_STREAM, 0);if (sock < 0)    perror("socket");return 1;2、绑定端口号struct sockaddr_in addr;    定义 IP 地址        addr.sin_family = AF_INET;    AF_INET  表示 ipv4 版本的协议          addr.sin_addr.s_addr = inet_addr(argv[1]);    赋值        addr.sin_port = htons(atoi(argv[2]);int ret = bind(sock, (struct sockaddr*)&addr, sizeof(addr));3、监听端口号（TCP 服务器）int listen(int socket, int backlog);        backlog    含义ret = listen(sock, 5);监听之后，接下来就可以让客户端来进行连接printf("Server Start OK\n");4、while 循环处理连接    对端关闭 while 退出while(1){    循环处理连接，通过 accept 把内核中的已经建立好的连接拿到用户空间代码中进行处理    struct sockaddr_in peer;    struct socklen_t len = sizeof(peer);    int new_sock = accept(sock, (struct sockaddr*)&peer, &len);    new_sock 表示详细    if(new_sock < 0)    {        perror("accept");        continue;    }   }5、使用 new_sock 对客户端进行数据读写ProcessConnect(new_sock);函数实现void ProcessConnect(int new_sock){    while(1)    {        1、尝试从客户端读取数据        char buf[1024] = {0};        //read_/write   recv/send        ssize_t read_size = read(new_sock, buf, sizeof(buf) - 1);        if(read_size < 0)        {            perror("read");            continue;        }        if(read_size == 0)        {            //读到 EOF ，对于我们的 TCP　socket 来说，表示对端关闭了连接            printf("[client %d] disconnect!\n", new_sock);            close(new_sock);            return;        }        buf[read_size] = '\0';        printf("[client %d] say %s\n", new_sock, buf);        打印客户端说的话        2、根据读的数据进行计算，回显服务器省略计算        3、把生成的响应写回客户端        write(new_sock, buf, strlen(buf));    }}TCP 客户端     client.c1、创建  socket     文件描述符    SOCK_STREAM     面向字节流2、让客户端和服务器建立连接    connect  连接   拨号int ret = connect(sock, 对端 IP ，sizeof(addr));ret < 0 建立连接失败3、循环尝试从标准输入读取数据char buf[1024] = {0};      双保证：buf[1024] = '\0';ssize_t read_size = read();read_size < 0   perrorread_size == 0    read done4、把数据发送给服务器即写数据 write 5、尝试从服务器读取数据6、把读取到的结果写到标准输出上Makefile.PHONY:allall:serverserver:server.c    gcc $^ -o $@client:client.c    gcc $^ -o $@.PHONY:cleanclean:    rm server clientTCP 服务端    server_fork.c              多进程版本1、服务器的初始化
+
+void ProcessConnect(int new_sock)
+{
+    1、创建子进程
+    pid_t ret = fork();
+    if(ret < 0)
+    {
+        perror("fork");
+        return;
+    }
+    if(ret == 0)
+    {
+        2、子进程循环读写 socket 数据
+        while(1)
+        {
+            char buf[1024] = {0};
+            ssize_t read_size = read(new_sock, buf, sizeof(buf) - 1);
+            if(read_size < 0)
+            {
+                perror("read");
+                exit(1);
+            }
+            if(read_size == 0)
+            {
+                printf("[client %d] disconnect!\n", new_sock);
+                return 0;
+            }
+            buf[read_size] = '\0';
+            printf("[client %d]\n", new_sock, buf);
+            把数据写回客户端
+            write(new_sock, buf, strlen(buf));
+        }
+        exit(0);
+    }
+    3、父进程能够快速调用 accept
+    关闭 new_sock 
+    回收子进程  忽略信号  
+    signal(SIGCHLD, SIG_IGN);
+    close(new_sock);
+
+    文件描述符表父子进程各有一份 
+}
+int ServerInit(char* ip, short port)
+{
+    int listen_sock = socket(AF_INET, SOCK_STREAM);
+    if(listen_sock < 0)
+    {
+        perror("socket");
+        return -1
+    }
+    struct sockaddr_in addr;    定义 IP 地址
+    addr.sin_family = AF_INET;    AF_INET  表示 ipv4 版本的协议  
+    addr.sin_addr.s_addr = inet_addr(ip);    赋值
+    addr.sin_port = htons(port);
+    int ret = bind(listen_sock, (struct sockaddr*)&addr, sizeof(addr));
+    if(ret < 0)
+    {
+        perror("bind");
+        return -1;
+    }
+    ret = listen(listen_sock, 5);
+    if(ret < 0)
+    {
+        perror("listen");
+        return 1;
+    }
+}
+int main(int argc, char* argv[])
+{
+    if(argc != 3)
+    {
+        printf("Useage ./server [ip] [port]\n");
+        return 1;
+    }
+    int listen_sock = ServerInit(argv[1], atoi(argv[2]));
+    if(listen_sock < 0)
+    {
+        printf("ServerInit failed\n");
+        return 1;
+    }
+    2、循环进行 accept 
+    while(1)
+    {
+        sockaddr_in peer;
+        socklen_t len = sizeof(peer);
+        int new_sock = socket(listen_sock, (struct sockaddr*)&peer, &len);
+        if(new_sock < 0)
+        {
+            perror("socket");
+            continue;
+        }
+        printf("[client %d] Connect!\n", new_sock);
+        ProcessConnect(new_sock);
+    }
+    return 0;
+}
+
+僵尸进程
+
+解决办法
+wait()    阻塞等待
+waitpid()    非阻塞等待
+回收子进程    忽略信号       signal(SIGCHLD, SIG_IGN);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
