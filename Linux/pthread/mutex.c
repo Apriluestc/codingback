@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <errno.h>
-
 int g_ticket = 100;
 void* y_col(void* arg)
 {
