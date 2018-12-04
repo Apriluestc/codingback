@@ -167,5 +167,40 @@ void SListTest()
 
 
 }
+ListNode* SList(ListNode* pHead1)
+{
+    //if(pHead == pHead1)
+    //{
+    SListInit(&pHead1);
+    SListPushBack(&pHead1, 0);
+    SListPushBack(&pHead1, 1);
+    SListPushBack(&pHead1, 2);
+    SListPushBack(&pHead1, 3);
+    SListPushBack(&pHead1, 4);
+    SListPushBack(&pHead1, 5);
+    SListPushBack(&pHead1, 6);
+    SListPushBack(&pHead1, 7);
+    SListPushBack(&pHead1, 8);
+    SListPushBack(&pHead1, 9);
+    //return pHead1;
+    //}
+    /*
+    else
+    {
+        ListNode* pHead2;
+        SListInit(&pHead2);
+        SListPushFront(&pHead2, 0);
+        SListPushFront(&pHead2, 1);
+        SListPushFront(&pHead2, 2);
+        SListPushFront(&pHead2, 3);
+        SListPushFront(&pHead2, 4);
+        SListPushFront(&pHead2, 5);
+        SListPushFront(&pHead2, 6);
+        SListPushFront(&pHead2, 7);
+        SListPushFront(&pHead2, 8);
+        SListPushFront(&pHead2, 9);
+    }*/
+    return pHead1;
+}
 
 

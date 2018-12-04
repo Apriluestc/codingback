@@ -18,3 +18,7 @@ rm MergeList
 g++ FindMidNode.cpp -o FindMidNode -g
 ./FindMidNode
 rm FindMidNode
+
+g++ DeleteNode.cpp -o DeleteNode -g
+./DeleteNode
+rm DeleteNode
