@@ -1,0 +1,28 @@
+1、	条件编译：
+		#pragma once
+
+		#ifdef _SEQ_LIST_H__
+		#define _SEQ_LIST_H__
+		#endif
+
+	二者区别：
+
+2、	assert 与 if 的使用场景：
+		
+3、	顺序表头插：
+		
+		方向：从后往前移
+		循环：程序中变量中的含义
+			数据的下标、空间的下标
+			i:
+			空间下标
+			数据下标
+4、排序
+	选择排序：8	5	3	2	0	4	9
+		 min					       max
+		 [min, max]
+
+		 minpos = min;
+		 maxpos = max;
+
+		 [min + 1, max]
