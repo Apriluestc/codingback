@@ -1,6 +1,4 @@
-/* 学生成绩管理系统功能函数 student.cpp */
-
-#include "user.h"
+﻿#include "user.h"
 
 //查询
 #include <cstring>
@@ -10,7 +8,20 @@ int Change(const char*fileDat)
 	fin.open(fileDat);
 	if (!fin.is_open())
 	{ 
-in.read((char*)&stu, sizeof stu))
+		cout << "文件打开失败"; 
+	}
+	else 
+	{
+		cout << "1:按学号查询\n2:按姓名查询\n";
+		int n;
+		cin >> n;
+
+		if (n == 1){
+			int num;
+			cout << "输入要查询的学号：";
+			cin >> num;
+			student stu;
+			while (fin.read((char*)&stu, sizeof stu))
 			{
 				if (stu.number == num)
 				{
