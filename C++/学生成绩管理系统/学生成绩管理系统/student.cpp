@@ -1,4 +1,6 @@
-﻿#include "user.h"
+﻿/* 学生成绩管理系统功能函数 student.cpp */
+
+#include "user.h"
 
 //查询
 #include <cstring>

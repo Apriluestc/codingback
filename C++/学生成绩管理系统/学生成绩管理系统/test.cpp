@@ -1,9 +1,11 @@
+/* 学生成绩管理系统主函数 test.cpp */
+
 #include <iostream>
 #include "user.h"
 #include <cstdlib>
 using namespace std;
 
-const char*fileDat = "c:/StudentDates";
+const char*fileDat = "c:\\StudentDates/Student_File.txt";
 
 int main()
 {
