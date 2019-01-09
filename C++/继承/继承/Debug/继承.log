@@ -1,4 +1,4 @@
-﻿生成启动时间为 2018/12/30 15:36:27。
+﻿生成启动时间为 2019/1/9 16:51:47。
      1>项目“F:\C++\继承\继承\继承.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          E:\VS-2013\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt test.cpp
@@ -10,4 +10,4 @@
 
 生成成功。
 
-已用时间 00:00:01.12
+已用时间 00:00:02.34
