@@ -1,0 +1,642 @@
+<template name="setupWizardLoading">
+<div class="setup-page-content">
+  <div class="centered-box">{{_ "wizard.setupWizardLoading.loading"}}</div>
+</div>
+</template>
+
+<template name="setupWizardButtonRow">
+<div class="setup-button-row">
+  {{>Template.contentBlock }}
+</div>
+</template>
+
+<template name="setupWizardProgressBarItem">
+{{!-- pure template, takes args:
+        stepName: String   lowercase name of this step, to be used in class names an
+   isCurrentStep: Boolean  Is stepName the current step?
+       mayJumpTo: Boolean  Should this be linked, or just text?
+           route: String   Name of the route to link to, if this is rendered as a link.
+       className: String   Additional classes to place on the rendered li element.
+
+    and a content block, which should be safe to place inside a <span>.
+--}}
+<li class="setup-progress-step step-{{stepName}} {{className}}">
+  {{#if isCurrentStep}}
+    <span class="setup-current-step">
+      {{> Template.contentBlock}}
+    </span>
+  {{else}}
+    {{#if mayJumpTo}}
+      {{#linkTo route=route class=linkClassName}}
+        {{> Template.contentBlock}}
+      {{/linkTo}}
+    {{else}}
+      <span class="setup-not-current-step">
+        {{> Template.contentBlock}}
+      </span>
+    {{/if}}
+  {{/if}}
+</li>
+</template>
+
+<template name="setupWizardProgressBar">
+{{!-- expected arguments:
+   currentStep: String, should be one of ["intro", "login", "organization", "email", "user", "success"]
+--}}
+<div class="setup-progress">
+  <ol class="setup-progress-labels">
+    {{#setupWizardProgressBarItem stepName="login"
+                                   isCurrentStep=(currentStepIs "login")
+                                   mayJumpTo=(mayJumpTo "login")
+                                   route="setupWizardLogin"
+                                   className=itemClassName}}
+      {{_ "wizard.setupWizardProgressBar.identityProviders"}}
+    {{/setupWizardProgressBarItem}}
+
+    {{#setupWizardProgressBarItem stepName="organization"
+                                   isCurrentStep=(currentStepIs "organization")
+                                   mayJumpTo=(mayJumpTo "organization")
+                                   route="setupWizardOrganization"
+                                   className=itemClassName}}
+      {{_ "wizard.setupWizardProgressBar.organization"}}
+    {{/setupWizardProgressBarItem}}
+
+    {{#setupWizardProgressBarItem stepName="email"
+                                   isCurrentStep=(currentStepIs "email")
+                                   mayJumpTo=(mayJumpTo "email")
+                                   route="setupWizardEmailConfig"
+                                   className=itemClassName
+                                   }}
+      {{_ "wizard.setupWizardProgressBar.email"}}
+    {{/setupWizardProgressBarItem}}
+
+    {{#setupWizardProgressBarItem stepName="preinstalled"
+                                   isCurrentStep=(currentStepIs "preinstalled")
+                                   mayJumpTo=(mayJumpTo "preinstalled")
+                                   route="setupWizardPreinstalled"
+                                   className=itemClassName
+                                   }}
+      {{_ "wizard.setupWizardProgressBar.preinstalledApps"}}
+    {{/setupWizardProgressBarItem}}
+
+    {{#setupWizardProgressBarItem stepName="user"
+                                   isCurrentStep=(currentStepIs "user")
+                                   mayJumpTo=(mayJumpTo "user")
+                                   route="setupWizardLoginUser"
+                                   className=itemClassName
+                                   }}
+      {{_ "wizard.setupWizardProgressBar.adminAccount"}}
+    {{/setupWizardProgressBarItem}}
+  </ol>
+  <div class="setup-progress-bar">
+    <div class="{{#if currentStepAtOrPast "login"       }}complete{{else}}incomplete{{/if}}"></div>
+    <div class="{{#if currentStepAtOrPast "organization"}}complete{{else}}incomplete{{/if}}"></div>
+    <div class="{{#if currentStepAtOrPast "email"       }}complete{{else}}incomplete{{/if}}"></div>
+    <div class="{{#if currentStepAtOrPast "preinstalled"}}complete{{else}}incomplete{{/if}}"></div>
+    <div class="{{#if currentStepAtOrPast "user"        }}complete{{else}}incomplete{{/if}}"></div>
+    <div class="{{#if currentStepAtOrPast "success"     }}complete{{else}}incomplete{{/if}}"></div>
+  </div>
+</div>
+</template>
+
+<template name="setupWizardHelpFooter">
+{{#let txt="wizard.setupWizardHelpFooter"}}
+<div class="setup-help-row">
+  <span class="setup-help-label">{{_ (con txt "needHelp")}}</span>
+  <a class="setup-help-link" target="_blank" href="https://docs.sandstorm.io/en/latest/administering/">{{_ (con txt "documentation")}}</a>
+  <a class="setup-help-link" href="mailto:support@sandstorm.io">{{_ (con txt "emailSupport")}}</a>
+  <button type="button" name="system-log" class="setup-help-link">{{_ (con txt "systemLog")}}</button>
+  {{!-- TODO(someday): Live Chat link --}}
+  {{#if showSystemLog}}
+    {{#modalDialogWithBackdrop onDismiss=hideSystemLogCallback}}
+      {{> setupWizardSystemLog "" }}
+    {{/modalDialogWithBackdrop}}
+  {{/if}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardSystemLog">
+{{#let txt="wizard.setupWizardSystemLog"}}
+<div class="setup-system-log">
+  {{#if ready}}
+    {{#if isUserPermitted}}
+      <h2 class="setup-system-log-header">
+        <span class="setup-system-log-header-text">{{_ (con txt "header.label")}}</span>
+        <form class="standard-form">
+          <button type="button" name="download-full-log">{{_ (con txt "header.downloadButton")}}</button>
+        </form>
+      </h2>
+      {{> newAdminLog ""}}
+    {{else}}
+      <p>
+        {{_ (con txt "permissionDenied")}}
+      </p>
+    {{/if}}
+  {{/if}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardLayout">
+<div class="setup-root">
+  {{> yield}}
+  {{> setupWizardHelpFooter "" }}
+  <div class="sandstorm-logo-row">
+    <div class="sandstorm-logo"></div>
+  </div>
+</div>
+</template>
+
+<template name="setupWizardIntro">
+{{#let txt="wizard.setupWizardIntro"}}
+<div class="setup-page-content">
+  <h1 class="setup-page-title">{{_ (con txt "title")}}</h1>
+
+  {{#if initialSetupComplete}}
+    {{#if noIdpEnabled}}
+    <p>
+      {{{_ (con txt "noIdpEnabled.explanation")}}}
+    </p>
+    <p class="center">
+      {{#linkTo route="setupWizardLogin" class="setup-button-primary"}}{{_ "wizard.setupWizardIntro.revisitWizardLink"}}{{/linkTo}}
+    </p>
+    {{else}}
+    <p>
+      {{_ (con txt "idpEnabled.explanation")}}
+
+      {{#unless currentUserIsAdmin}}
+      {{_ (con txt "idpEnabled.turnUserIntoAdmin")}}
+      {{/unless}}
+    </p>
+
+    {{#if errorMessage}}
+      {{#focusingErrorBox}}
+        {{errorMessage}}
+      {{/focusingErrorBox}}
+    {{/if}}
+
+    {{#if successMessage}}
+      {{#focusingSuccessBox}}
+        {{successMessage}}
+      {{/focusingSuccessBox}}
+    {{/if}}
+
+    {{#if currentUser}}
+      {{#if currentUserIsAdmin}}
+        <p class="center">
+          {{#linkTo route="newAdminRoot" class="admin-settings-button"}}{{_ "wizard.setupWizardIntro.idpEnabled.isAdmin.adminPanelLink"}}{{/linkTo}}
+        </p>
+      {{else}}
+        {{#if credentialUser}}
+          {{> credentialLoginInterstitial "" }}
+        {{else}}
+          <p class="center">
+            <button class="make-self-admin">{{_ (con txt "idpEnabled.isAdmin.suButton")}}</button>
+          </p>
+        {{/if}}
+      {{/if}}
+    {{else}}
+      <p>
+        {{_ (con txt "idpEnabled.isNotAdmin.explanation")}}
+      </p>
+      <p>
+        <div class="center">
+          {{#if showSignInPanel}}
+            {{#with linkingNewCredential=notLinkingNewCredential}}
+              {{> loginButtonsDialog label=(_ (con txt "idpEnabled.isNotAdmin.signInLabel")) accountsUi=freshAccountsUi}}
+            {{/with}}
+          {{else}}
+          <button class="sign-in-button">{{_ (con txt "idpEnabled.isNotAdmin.signInButton")}}</button>
+          {{/if}}
+        </div>
+      </p>
+    {{/if}}
+
+    <p class="center">
+      {{#linkTo route="setupWizardLogin" class="rerun-wizard-button"}}{{_ "wizard.setupWizardIntro.revisitWizardLink"}}{{/linkTo}}
+    </p>
+    {{/if}}
+  {{else}}
+    <div class="sandstorm-logo-row">
+      <div class="sandstorm-logo"></div>
+    </div>
+
+    <button class="setup-sandstorm">
+      {{_ (con txt "setupButton")}}
+    </button>
+  {{/if}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardLogin">
+{{#let txt="wizard.setupWizardIdentity"}}
+<div class="setup-page-content">
+  <h1 class="setup-page-title">{{_ (con txt "title")}}</h1>
+  {{> setupWizardProgressBar currentStep="login"}}
+
+  <p>
+    {{_ (con txt "explanation1")}}
+  </p>
+
+  <p>
+    {{_ (con txt "explanation2")}}
+  </p>
+
+  {{> adminLoginProviderTable idpData=idpData }}
+
+  {{#setupWizardButtonRow}}
+    <button class="setup-next-button" {{nextHtmlDisabled}}>
+      {{_ (con txt "nextButton")}}
+    </button>
+    <button class="setup-back-button">
+      {{_ (con txt "backButton")}}
+    </button>
+  {{/setupWizardButtonRow}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardOrganization">
+{{#let txt="wizard.setupWizardOrganization"}}
+<div class="setup-page-content">
+  <h1 class="setup-page-title">{{_ (con txt "title")}}</h1>
+
+  {{> setupWizardProgressBar currentStep="organization"}}
+
+  {{> organizationSettingsBlurb "" }}
+
+  {{#if errorMessage}}
+    {{#focusingErrorBox}}
+      {{_ (con txt "error") errorMessage}}
+    {{/focusingErrorBox}}
+  {{/if}}
+
+  <form class="setup-organization-management-form">
+  <h4>{{_ (con txt "membership.title")}}</h4>
+  <div class="org-membership">
+    <div class="org-options-group">
+        <label><input type="checkbox" name="email-toggle" checked="{{emailChecked}}" {{emailHtmlDisabled}}>{{_ (con txt "membership.emailToggle.label")}}</label>
+      {{#if emailDisabled }}
+      <span class="form-subtext">{{_ (con txt "membership.emailToggle.subtext")}}</span>
+      {{/if}}
+      <div class="form-group">
+        <label>{{_ (con txt "membership.emailDomain.label")}}
+          <input type="text" name="email-domain" value="{{emailDomain}}" {{emailHtmlDisabled}}>
+        </label>
+        <span class="form-subtext">
+          {{_ (con txt "membership.emailDomain.subtext")}}
+        </span>
+      </div>
+    </div>
+
+    <div class="org-options-group">
+        <label><input type="checkbox" name="gapps-toggle" checked="{{gappsChecked}}" {{gappsHtmlDisabled}}>{{_ (con txt "membership.gappsToggle.label")}}</label>
+      {{#if gappsDisabled }}
+      <span class="form-subtext">{{_ (con txt "membership.gappsToggle.subtext")}}</span>
+      {{/if}}
+      <div class="form-group">
+        <label>{{_ (con txt "membership.gappsDomain.label")}}
+          <input type="text" name="gapps-domain" value="{{gappsDomain}}" {{gappsHtmlDisabled}}>
+        </label>
+        <span class="form-subtext">
+          {{_ (con txt "membership.gappsDomain.subtext")}}
+        </span>
+      </div>
+    </div>
+
+    <div class="org-options-group">
+        <label><input type="checkbox" name="ldap-toggle" checked="{{ldapChecked}}" {{ldapHtmlDisabled}}>{{_ (con txt "membership.ldapToggle.label")}}</label>
+      {{#if ldapDisabled }}
+      <span class="form-subtext">{{_ (con txt "membership.ldapToggle.subtext")}}</span>
+      {{/if}}
+    </div>
+
+    <div class="org-options-group">
+        <label><input type="checkbox" name="saml-toggle" checked="{{samlChecked}}" {{samlHtmlDisabled}}>{{_ (con txt "membership.samlToggle.label")}}</label>
+      {{#if samlDisabled }}
+      <span class="form-subtext">{{_ (con txt "membership.samlToggle.subtext")}}</span>
+      {{/if}}
+    </div>
+  </div>
+
+  <h4>{{_ (con txt "settings.title")}}</h4>
+  <div class="org-settings">
+    <div class="org-options-group">
+      <label>
+        <input type="checkbox" name="disallow-guests" checked={{disallowGuests}}>{{_ (con txt "settings.disallowGuests.label")}}
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "settings.disallowGuests.subtext")}}
+      </span>
+    </div>
+
+    <div class="org-options-group">
+      <label>
+        <input type="checkbox" name="share-contacts" checked="{{shareContacts}}">{{_ (con txt "settings.shareContacts.label")}}
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "settings.shareContacts.subtext")}}
+      </span>
+    </div>
+  </div>
+
+  </form>
+  {{#setupWizardButtonRow}}
+    <button class="setup-next-button">
+      {{_ (con txt "saveButton")}}
+    </button>
+    <button class="setup-back-button">
+      {{_ (con txt "backButton")}}
+    </button>
+  {{/setupWizardButtonRow}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardEmailConfig">
+{{#let txt="wizard.setupWizardEmailConfig"}}
+<div class="setup-page-content">
+  <h1 class="setup-page-title">{{_ (con txt "title")}}</h1>
+  {{> setupWizardProgressBar currentStep="email"}}
+
+  <p>
+    {{_ (con txt "explanation")}}
+  </p>
+
+  <p>
+    {{{_ (con txt "moreDetail")}}}
+  </p>
+
+  {{#if errorMessage}}
+    {{#focusingErrorBox}}
+      {{_ (con txt "error") errorMessage}}
+    {{/focusingErrorBox}}
+  {{/if}}
+
+  <form class="email-form">
+    <div class="form-group">
+      <div class="host-port">
+        <label class="host-box">
+          {{_ (con txt "hostPort.host")}}
+          <input class="hostname" type="text" name="smtp-hostname" value="{{smtpHostname}}" required />
+        </label>
+        <label class="port-box">
+          {{_ (con txt "hostPort.port")}}
+          <input class="port" type="number" name="smtp-port" value="{{smtpPort}}" required />
+        </label>
+      </div>
+      <div class="form-subtext">{{_ (con txt "hostPort.subtext")}}</div>
+    </div>
+
+    <div class="form-group">
+      <label>
+        {{_ (con txt "username.label")}}
+        <input class="username" type="text" name="smtp-username" value="{{smtpUsername}}" />
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>
+        {{_ (con txt "password.label")}}
+        <input class="password" type="password" name="smtp-password" value="{{smtpPassword}}" />
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>
+        {{_ (con txt "email.label")}}
+        <input class="from-address" type="email" name="smtp-return-address" value="{{smtpReturnAddress}}" required />
+      </label>
+      <div class="form-subtext">
+        {{_ (con txt "email.subtext")}}
+      </div>
+    </div>
+  </form>
+
+  {{#if showTestSendEmailPopup}}
+    {{#modalDialogWithBackdrop onDismiss=closePopupCallback}}
+      {{> emailTestPopup token=token smtpConfig=getSmtpConfig onDismiss=closePopupCallback }}
+    {{/modalDialogWithBackdrop}}
+  {{/if}}
+
+  {{#setupWizardButtonRow}}
+    <button class="setup-next-button" {{nextHtmlDisabled}}>
+      {{_ (con txt "saveButton")}}
+    </button>
+    <button class="setup-skip-email" {{skipHtmlDisabled}}>
+      {{_ (con txt "skipButton")}}
+    </button>
+    <button class="setup-test-email-button" {{testHtmlDisabled}}>
+      {{_ (con txt "testButton")}}
+    </button>
+    <button class="setup-back-button">
+      {{_ (con txt "backButton")}}
+    </button>
+  {{/setupWizardButtonRow}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardPreinstalled">
+{{#let txt="wizard.setupWizardPreinstalled"}}
+<div class="setup-page-content setup-preinstall">
+  <h1 class="setup-page-title">{{_ (con txt "title")}}</h1>
+  {{> setupWizardProgressBar currentStep="preinstalled"}}
+
+  <p>
+    {{_ (con txt "explanation")}}
+  </p>
+  {{#if Template.subscriptionsReady}}
+  <div class="productivity-suite" role="grid">
+    <div role="rowgroup">
+      {{#each preinstallApps}}
+        <div role="row" class="{{#if isAppPreinstalled}}checked{{/if}}">
+          <div class="name" role="gridcell">{{name}}</div>
+          <div class="description" role="gridcell">{{shortDescription}}</div>
+          <div class="download" role="gridcell">
+            {{#if isAppDownloaded}}
+              <i class="download-checkmark"></i>{{_ (con txt "downloaded")}}
+            {{else}}{{#if isAppDownloading}}
+              <progress value="{{progressFraction}}"></progress>
+            {{else}}{{#if isAppFailed}}
+              <i class="download-x-mark"></i>{{_ (con txt "failed")}}
+            {{/if}}
+            {{/if}}
+            {{/if}}
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+  {{else}}
+    <h2>{{_ (con txt "loading")}}</h2>
+  {{/if}}
+
+  {{#setupWizardButtonRow}}
+    <button class="setup-next-button" disabled="{{#unless allowNext}}true{{/unless}}">
+      {{_ (con txt "nextButton")}}
+    </button>
+    {{#if allowSkip}}
+    <button class="setup-skip-button">
+      {{_ (con txt "skipButton")}}
+    </button>
+    {{/if}}
+    <button class="setup-back-button">
+      {{_ (con txt "backButton")}}
+    </button>
+  {{/setupWizardButtonRow}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardLoginUser">
+{{#let txt="wizard.setupWizardLoginUser"}}
+<div class="setup-page-content">
+  <h1 class="setup-page-title">{{_ (con txt "title")}}</h1>
+  {{> setupWizardProgressBar currentStep="user"}}
+
+  {{#if errorMessage}}
+    {{#focusingErrorBox}}
+      {{errorMessage}}
+    {{/focusingErrorBox}}
+  {{/if}}
+
+  {{#if successMessage}}
+    {{#focusingSuccessBox}}
+      {{successMessage}}
+    {{/focusingSuccessBox}}
+  {{/if}}
+
+{{#if credentialUser}}
+  {{> credentialLoginInterstitial "" }}
+{{else}}
+  {{#if currentUser}}
+    {{#if currentUserFirstLogin}}
+      <div class="center">
+        <h2>{{_ (con txt "firstLogin.title")}}</h2>
+        <div class="single-credential-editor">
+          {{#with accountProfileEditorData}}
+            {{> _accountProfileEditor .}}
+          {{/with}}
+        </div>
+      </div>
+
+      {{#unless serverHasAdmin}}
+        {{redeemSessionForAdmin}}
+      {{/unless}}
+    {{else}}
+      {{#if currentUserIsAdmin}}
+        <p>{{_ (con txt "isAdmin")}}</p>
+      {{else}}
+        {{#if serverHasAdmin}}
+          <p>
+            {{_ (con txt "hasAdmin.explanation")}}
+          </p>
+          <div class="center">
+            <button class="make-self-admin">{{_ (con txt "hasAdmin.adminButton")}}</button>
+          </div>
+        {{else}}
+          <p>{{_ (con txt "makeYouAnAdmin")}}</p>
+          {{redeemSessionForAdmin}}
+        {{/if}}
+      {{/if}}
+    {{/if}}
+  {{else}}
+    <p>{{_ (con txt "loggedOut.explanation")}}</p>
+    <div class="center">
+      <p>{{_ (con txt "loggedOut.description")}}</p>
+
+      {{!-- The loginButtonsDialog apparently requires this in the parent data context, which seems
+            wrong.  It should probably be passed in explicitly instead.  --}}
+      {{#with linkingNewCredential=notLinkingNewCredential}}
+        {{> loginButtonsDialog label=(_ (con txt "loggedOut.dialogLabel")) accountsUi=freshAccountsUi}}
+      {{/with}}
+    </div>
+  {{/if}}
+{{/if}}
+
+  {{#setupWizardButtonRow}}
+    <button class="setup-next-button" {{nextHtmlDisabled}}>
+      {{_ (con txt "finishButton")}}
+    </button>
+    <button class="setup-back-button">
+      {{_ (con txt "backButton")}}
+    </button>
+  {{/setupWizardButtonRow}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardSuccess">
+{{#let txt="wizard.setupWizardSuccess"}}
+<div class="setup-page-content">
+  <h1 class="setup-page-title">{{_ (con txt "title")}}</h1>
+
+  {{> setupWizardProgressBar currentStep="success"}}
+
+  <p>{{_ (con txt "serverIsReady")}}</p>
+  <p>{{_ (con txt "whatsNext")}}</p>
+
+  <div class="setup-next-steps">
+    {{#unless someOrgMembershipEnabled}}
+      {{#linkTo route="newAdminUserInvite" class="setup-button-secondary"}}
+        {{_ "wizard.setupWizardSuccess.addUsersLink"}}
+      {{/linkTo}}
+    {{/unless}}
+    {{#linkTo route="newAdminRoot" class="setup-button-secondary"}}
+      {{_ "wizard.setupWizardSuccess.editSettingsLink"}}
+    {{/linkTo}}
+    {{#linkTo route="apps" class="setup-button-primary"}}
+      {{_ "wizard.setupWizardSuccess.sandstormLink"}}
+    {{/linkTo}}
+  </div>
+
+  {{#setupWizardButtonRow}}
+    <button class="setup-back-button">
+      {{_ (con txt "backButton")}}
+    </button>
+  {{/setupWizardButtonRow}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardVerifyToken">
+{{#let txt="wizard.setupWizardVerifyToken"}}
+<div class="setup-page-content">
+  <h1 class="setup-page-title">{{_ (con txt "title")}}</h1>
+  {{#if rejected}}
+  <p>
+    {{_ (con txt "explanation")}}
+  </p>
+
+  <p>
+    {{{_ (con txt "howToFix")}}}
+  </p>
+  {{/if}}
+</div>
+{{/let}}
+</template>
+
+<template name="setupWizardTokenExpired">
+{{#let txt="wizard.setupWizardTokenExpired"}}
+<div class="setup-page-content">
+  <h1 class="setup-page-title">{{_ (con txt "title")}}</h1>
+  {{#if hasUsers}}
+  <p>
+  {{_ (con txt "alreadySetup")}}
+  {{#linkTo route="newAdminRoot"}}{{_ "wizard.setupWizardTokenExpired.adminRootLink"}}{{/linkTo}}.
+  </p>
+  {{/if}}
+
+  <p>
+    {{_ (con txt "explanation")}}
+  </p>
+
+  <p>
+    {{{_ (con txt "howToFix")}}}
+  </p>
+</div>
+{{/let}}
+</template>

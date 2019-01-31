@@ -1,0 +1,29 @@
+<template name="newAdminLogContents">
+  <pre>{{_ "admin.systemStatus.newAdminLogContents.ellipsis"}}{{{logHtml}}}</pre>
+</template>
+
+<template name="newAdminLog">
+  <div class="admin-log-box" aria-live="polite">
+    {{> newAdminLogContents logHtml=logHtml onRenderedHook=maybeScrollToBottom }}
+  </div>
+</template>
+
+<template name="newAdminStatus">
+  <h1>
+    <ul class="admin-breadcrumbs">
+      <li>{{#linkTo route="newAdminRoot"}}{{_ "admin.title"}}{{/linkTo}}</li>
+      <li>{{_ "admin.systemStatus.name"}}</li>
+    </ul>
+  </h1>
+
+  <h2 class="system-log-header">
+    <span>{{_ "admin.systemStatus.name"}}</span>
+    <form>
+      <button type="button" name="download-full-log">
+        {{_ "admin.systemStatus.newAdminStatus.downloadButton"}}
+      </button>
+    </form>
+  </h2>
+
+  {{> newAdminLog "" }}
+</template>

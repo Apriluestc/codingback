@@ -1,0 +1,60 @@
+<template name="newAdminHostingManagement">
+{{#let txt="admin.hostingManagement.newAdminHostingManagement"}}
+  <h1>
+    <ul class="admin-breadcrumbs">
+      <li>{{#linkTo route="newAdminRoot"}}{{_ "admin.title"}}{{/linkTo}}</li>
+      <li>{{_ "admin.hostingManagement.name"}}</li>
+    </ul>
+  </h1>
+
+  <div class="flash-message warning-message">
+      {{_ (con txt "explanation")}}
+  </div>
+
+  {{#if hasSuccess}}
+    {{#focusingSuccessBox}}
+      {{message}}
+    {{/focusingSuccessBox}}
+  {{/if}}
+  {{#if hasError}}
+    {{#focusingErrorBox}}
+      {{message}}
+    {{/focusingErrorBox}}
+  {{/if}}
+  <form class="admin-hosting-management-form {{#if formDisabled}}disabled{{/if}}">
+    <div class="form-group">
+      <label>
+        <input type="checkbox" name="quotaEnabled" checked="{{quotaEnabled}}" />
+        {{_ (con txt "quotaEnabled.label")}}
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "quotaEnabled.subtext")}}
+      </span>
+    </div>
+
+    {{#if quotaEnabled}}
+    <div class="form-group">
+      <label>
+        {{_ (con txt "quotaLdapAttribute.label")}}
+        <input type="text" name="quotaLdapAttribute" value="{{quotaLdapAttribute}}" />
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "quotaLdapAttribute.subtext")}}
+      </span>
+      <label>
+        {{_ (con txt "billingPromptUrl.label")}}
+        <input type="text" name="billingPromptUrl" value="{{billingPromptUrl}}" />
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "billingPromptUrl.subtext")}}
+      </span>
+    </div>
+    {{/if}}
+
+    <div class="button-row">
+      <button type="submit" class="save" disabled="{{saveDisabled}}">{{_ (con txt "saveButton")}}</button>
+      <button type="button" class="restore" disabled="{{restoreDisabled}}">{{_ (con txt "restoreButton")}}</button>
+    </div>
+  </form>
+{{/let}}
+</template>

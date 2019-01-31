@@ -1,0 +1,54 @@
+<template name="_emailTokenError">
+  <h2>{{_ "accounts.tokenTemplates._emailTokenError.title"}}</h2>
+</template>
+
+<template name="_emailLinkCredentialError">
+  <h2>
+    {{_ "accounts.tokenTemplates._emailLinkIdentityError.title"}}
+  </h2>
+  {{error}}
+</template>
+
+<template name="addNewVerifiedEmailPowerboxConfiguration">
+{{#let txt="accounts.tokenTemplates.addNewVerifiedEmailPowerboxConfiguration"}}
+  {{#if state.error}}
+    {{#focusingErrorBox}}
+      {{state.error}}
+    {{/focusingErrorBox}}
+  {{/if}}
+
+  {{#if state.enterEmail}}
+    <form class="verified-email" name="enter-email">
+      <input type="text" name="email" placeholder="{{_ (con txt "email.placeholder")}}" value={{email}}>
+      {{#if alreadyVerified}}
+        <button class="connect-button">{{_ (con txt "email.selectButton")}}</button>
+      {{else}}
+        <button class="connect-button" disabled={{#unless email}}true{{/unless}}>
+          {{_ (con txt "email.sendButton")}}
+        </button>
+      {{/if}}
+    </form>
+  {{/if}}
+
+  {{#if state.sendingEmail }}
+    <p>{{_ (con txt "sendingTo") email}}</p>
+  {{/if}}
+
+  {{#if state.enterToken }}
+    {{#if state.error}}
+    <div class="reset-row">
+      <button name="reset" type="button">{{_ (con txt "resetButton")}}</button>
+    </div>
+    {{/if}}
+    <p>{{enterTokenMessage}}</p>
+    <form class="verified-email" name="enter-token">
+      <input type="text" name="token" placeholder="{{_ (con txt "token.placeholder")}}" value={{token}}>
+      <button class="connect-button" disabled={{#unless token}}true{{/unless}}>{{_ (con txt "token.confirmButton")}}</button>
+    </form>
+  {{/if}}
+
+  {{#if state.sendingToken }}
+    <p>{{_ (con txt "verifying")}}</p>
+  {{/if}}
+{{/let}}
+</template>

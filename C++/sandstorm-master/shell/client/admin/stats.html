@@ -1,0 +1,227 @@
+<template name="statsUserGrainsTable">
+{{!-- Takes an argument:
+   points: Array of Objects containing the fields in ActivityStats, plus `day`
+    ready: Boolean, indicates readiness, to avoid rerendering as data streams in
+   --}}
+<table class="stats-users-grains">
+  <thead>
+    {{#let txt="admin.stats.header"}}
+    <tr>
+      <th rowspan="2">{{_ (con txt "date")}}</th>
+      <th colspan="4">{{_ (con txt "users")}}</th>
+      <th colspan="4">{{_ (con txt "grains")}}</th>
+    </tr>
+    <tr>
+      <th>{{_ (con txt "daily")}}</th>
+      <th>{{_ (con txt "weekly")}}</th>
+      <th>{{_ (con txt "monthly")}}</th>
+      <th>{{_ (con txt "forever")}}</th>
+      <th>{{_ (con txt "daily")}}</th>
+      <th>{{_ (con txt "weekly")}}</th>
+      <th>{{_ (con txt "monthly")}}</th>
+      <th>{{_ (con txt "forever")}}</th>
+    </tr>
+    {{/let}}
+  </thead>
+  <tbody>
+  {{#let txt="admin.stats.body"}}
+  {{#if ready}}
+    {{#each points}}
+      <tr>
+        <td>{{day}}</td>
+        <td>{{daily.activeUsers}}</td>
+        <td>{{weekly.activeUsers}}</td>
+        <td>{{monthly.activeUsers}}</td>
+        <td>{{forever.activeUsers}}</td>
+        <td>{{daily.activeGrains}}</td>
+        <td>{{weekly.activeGrains}}</td>
+        <td>{{monthly.activeGrains}}</td>
+        <td>{{forever.activeGrains}}</td>
+      </tr>
+    {{else}}
+      <tr>
+        <td colspan="9">{{_ (con txt "notFound")}}</td>
+      </tr>
+    {{/each}}
+  {{else}}
+    <tr>
+      <td colspan="9">{{_ (con txt "loading")}}</td>
+    </tr>
+  {{/if}}
+  {{/let}}
+  </tbody>
+</table>
+</template>
+
+<template name="statsAppsTable">
+{{!-- expects a single argument:
+  apps: Array of Object like ActivityStats, plus `appTitle`
+ ready: Boolean, indicates readiness, to avoid rerendering as data streams in
+--}}
+<table class="stats-apps">
+  <thead>
+    {{#let txt="admin.stats.header"}}
+    <tr>
+      <th rowspan="2">{{_ (con txt "appName")}}</th>
+      <th colspan="4">{{_ (con txt "owners")}}</th>
+      <th colspan="4">{{_ (con txt "sharedUsers")}}</th>
+      <th colspan="4">{{_ (con txt "grains")}}</th>
+    </tr>
+    <tr>
+      <th>{{_ (con txt "daily")}}</th>
+      <th>{{_ (con txt "weekly")}}</th>
+      <th>{{_ (con txt "monthly")}}</th>
+      <th>{{_ (con txt "forever")}}</th>
+      <th>{{_ (con txt "daily")}}</th>
+      <th>{{_ (con txt "weekly")}}</th>
+      <th>{{_ (con txt "monthly")}}</th>
+      <th>{{_ (con txt "forever")}}</th>
+      <th>{{_ (con txt "daily")}}</th>
+      <th>{{_ (con txt "weekly")}}</th>
+      <th>{{_ (con txt "monthly")}}</th>
+      <th>{{_ (con txt "forever")}}</th>
+    </tr>
+    {{/let}}
+  </thead>
+  <tbody>
+  {{#let txt="admin.stats.body"}}
+  {{#if ready}}
+    {{#each apps}}
+      <tr>
+        <td title="{{appId}}">{{appTitle}}</td>
+        <td>{{daily.owners}}</td>
+        <td>{{weekly.owners}}</td>
+        <td>{{monthly.owners}}</td>
+        <td>{{forever.owners}}</td>
+        <td>{{daily.sharedUsers}}</td>
+        <td>{{weekly.sharedUsers}}</td>
+        <td>{{monthly.sharedUsers}}</td>
+        <td>{{forever.sharedUsers}}</td>
+        <td>{{daily.grains}}</td>
+        <td>{{weekly.grains}}</td>
+        <td>{{monthly.grains}}</td>
+        <td>{{forever.grains}}</td>
+      </tr>
+    {{else}}
+      <tr>
+        <td colspan="13">{{_ (con txt "notFound")}}</td>
+      </tr>
+    {{/each}}
+  {{else}}
+    <tr>
+      <td colspan="13">{{_ (con txt "loading")}}</td>
+    </tr>
+  {{/if}}
+  {{/let}}
+  </tbody>
+</table>
+</template>
+
+<template name="newAdminStats">
+{{#let txt="admin.stats.newAdminStats"}}
+  <h1>
+    <ul class="admin-breadcrumbs">
+      <li>{{#linkTo route="newAdminRoot"}}{{_ "admin.title"}}{{/linkTo}}</li>
+      <li>{{_ "admin.stats.name"}}</li>
+    </ul>
+  </h1>
+
+  <h2>{{_ (con txt "share.title")}}</h2>
+
+  {{#if hasSuccess}}
+    {{#focusingSuccessBox}}
+      {{message}}
+    {{/focusingSuccessBox}}
+  {{/if}}
+
+  {{#if hasError}}
+    {{#focusingErrorBox}}
+      {{message}}
+    {{/focusingErrorBox}}
+  {{/if}}
+
+  {{#if undecided}}
+    <div class="flash-message info-message">
+      <p>
+        {{_ (con txt "share.explanation")}}
+      </p>
+
+      <form class="stats-request">
+        <div class="button-row">
+          <button type="submit" class="button-primary" name="enable-stats">
+            {{_ (con txt "share.enableButton")}}
+          </button>
+          <button type="button" class="button-link" name="disable-stats">
+            {{_ (con txt "share.disableButton")}}
+          </button>
+        </div>
+      </form>
+    </div>
+  {{else}}
+    <p>
+      {{_ (con txt "share.control.explanation")}}
+    </p>
+    <p>
+      {{_ (con txt "share.control.label")}}
+      {{#if sendStats}}
+        <span class="stats-enabled">{{_ (con txt "share.control.enabled")}}</span>
+      {{else}}
+        <span class="stats-disabled">{{_ (con txt "share.control.disabled")}}</span>
+      {{/if}}
+      <form class="stats-toggle">
+        {{#if sendStats}}
+        <button type="button" class="button-disable" name="disable-stats">{{_ (con txt "share.control.disableButton")}}</button>
+        {{else}}
+        <button type="button" class="button-enable" name="enable-stats">{{_ (con txt "share.control.enableButton")}}</button>
+        {{/if}}
+      </form>
+    </p>
+  {{/if}}
+
+
+  <h2>{{_ "admin.stats.name"}}</h2>
+  <h3>{{_ (con txt "json.title")}}</h3>
+  <p>
+    {{_ (con txt "json.explanation")}}
+  </p>
+
+  <form class="stats-json">
+    <div class="form-group">
+      <label>
+        {{_ (con txt "json.label")}}
+        {{> autoSelectingInput value=statsLink}}
+      </label>
+    </div>
+
+    <div class="button-row">
+      <button type="button" name="regenerate-stats-token">
+        {{_ (con txt "json.regenerateButton")}}
+      </button>
+    </div>
+  </form>
+  <h3>{{_ (con txt "userGrains.title")}}</h3>
+
+  {{#with current=current}}
+  <p>{{_ (con txt "userGrains.current") users=current.activeUsers grains=current.activeGrains}}</p>
+  {{/with}}
+  {{#with today=today}}
+  <p>{{_ (con txt "userGrains.today") users=today.activeUsers grains=today.activeGrains}}</p>
+  {{/with}}
+
+  {{> statsUserGrainsTable points=points ready=ready}}
+
+  <h3>{{_ (con txt "apps.title")}}</h3>
+  <form class="stats-apps-date">
+    <label>
+      {{_ (con txt "apps.label")}}
+      <select class="package-date">
+        {{#each appDates }}
+          <option value="{{_id}}" selected="{{#if selected}}true{{/if}}">{{day}}</option>
+        {{/each}}
+      </select>
+    </label>
+  </form>
+
+  {{> statsAppsTable apps=apps ready=ready}}
+{{/let}}
+</template>

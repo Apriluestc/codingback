@@ -1,0 +1,1 @@
+../../deps/libseccomp/src/arch-x32.c

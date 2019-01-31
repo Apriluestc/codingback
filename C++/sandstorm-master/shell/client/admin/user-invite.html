@@ -1,0 +1,101 @@
+<template name="newAdminUserInviteLink">
+{{#let txt="admin.userInvite.newAdminUserInviteLink"}}
+
+  <p>{{_ (con txt "explanation")}}</p>
+
+  <h2>{{_ (con txt "title")}}</h2>
+
+  {{#if hasSuccess}}
+    {{#focusingSuccessBox}}
+      {{message}}
+    {{/focusingSuccessBox}}
+  {{/if}}
+
+  {{#if hasError}}
+    {{#focusingErrorBox}}
+      {{message}}
+    {{/focusingErrorBox}}
+  {{/if}}
+
+  <p>{{_ (con txt "invite.explanation")}}</p>
+  <form class="admin-invite-button-form">
+    <button type="submit">{{_ (con txt "invite.createButton")}}</button>
+    {{#if generatedLink}}
+      {{> autoSelectingInput value=generatedLink }}
+    {{/if}}
+  </form>
+{{/let}}
+</template>
+
+<template name="newAdminUserInviteEmail">
+{{#let txt="admin.userInvite.newAdminUserInviteEmail"}}
+  <h2>{{_ (con txt "title")}}</h2>
+
+  {{#unless emailConfigured }}
+    <p class="flash-message warning-message">
+      {{_ (con txt "emailWarning.explanation")}}
+      {{#linkTo route="newAdminEmailConfig"}}
+        {{_ "admin.userInvite.newAdminUserInviteEmail.emailWarning.configureLink"}}
+      {{/linkTo}}
+    </p>
+  {{/unless}}
+
+  {{#if hasSuccess}}
+    {{#focusingSuccessBox}}
+      {{message}}
+    {{/focusingSuccessBox}}
+  {{/if}}
+
+  {{#if hasError}}
+    {{#focusingErrorBox}}
+      {{message}}
+    {{/focusingErrorBox}}
+  {{/if}}
+
+  <p>{{_ (con txt "explanation")}}</p>
+
+  <form class="admin-invite-email-form" disabled="{{emailFormDisabled}}">
+    <div class="form-group">
+      <label>
+        {{_ (con txt "to.label")}}
+        <textarea class="to-addresses" name="to-addresses" value="{{ toAddresses }}"
+            disabled="{{emailFormDisabled}}" required placeholder="{{_ (con txt "to.placeholder")}}"></textarea>
+      </label>
+      <span class="form-subtext">{{_ (con txt "to.subtext")}}</span>
+    </div>
+
+    <div class="form-group">
+      <label>
+        {{_ (con txt "subject.label")}}
+        <input type="text" name="subject" value="{{ subject }}" disabled="{{emailFormDisabled}}" required />
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>
+        {{_ (con txt "body.label")}}
+        <textarea name="message-body" value="{{ messageBody }}" disabled="{{emailFormDisabled}}" required></textarea>
+      </label>
+      <span class="form-subtext">{{{_ (con txt "body.subtext")}}}</span>
+    </div>
+
+    <div class="button-row">
+      <button type="submit" disabled="{{sendButtonDisabled}}">{{_ (con txt "sendButton")}}</button>
+    </div>
+  </form>
+{{/let}}
+</template>
+
+<template name="newAdminUserInvite">
+  <h1>
+    <ul class="admin-breadcrumbs">
+      <li>{{#linkTo route="newAdminRoot"}}{{_ "admin.title"}}{{/linkTo}}</li>
+      <li>{{#linkTo route="newAdminUsers"}}{{_ "admin.users.name"}}{{/linkTo}}</li>
+      <li>{{_ "admin.userInvite.newAdminUserInvite.title"}}</li>
+    </ul>
+  </h1>
+
+  {{> newAdminUserInviteLink "" }}
+  <hr>
+  {{> newAdminUserInviteEmail "" }}
+</template>

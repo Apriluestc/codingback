@@ -1,0 +1,81 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # We have a few box types. The boxes, such as trusty64 or
+  # thoughtbot_jessie, are created by prepare-for-tests.sh.
+
+  # In general, we use a shell script to "provision" the box. just
+  # sets up a different hostname than vagrant, because I find
+  # "vagrant" to be a weird hostname.
+  config.ssh.shell = "bash"
+  config.vm.provision "shell",
+                       inline: "echo localhost > /etc/hostname && hostname localhost && echo 107.178.223.140 dl.sandstorm.io >> /etc/hosts"
+
+
+  # Make sure to share the dir one *above* the current working directory. That way, we get
+  # the Sandstorm source tree, which includes the all-important install.sh.
+  config.vm.synced_folder "..", "/vagrant",
+                          type: "rsync",
+                          rsync__exclude: [
+                            ".*/",
+                            ".*",
+                            "*",
+                          ],
+                          rsync__args: [
+                            "--archive",
+                            "--delete",
+                            "--include=install.sh",
+                          ]
+
+  # In this Vagrantbox purely to test the install script, we do not
+  # forward any ports. If we need to test if ports are available, we
+  # can do that by SSH-ing in.
+
+  # Use qemu driver for libvirt. See README.md for rationale.
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.driver = 'qemu'
+    # Use a healthy but small amount of RAM to avoid OOMing.
+    libvirt.memory = 400
+    # Use just one virtual CPU, since the install script is not
+    # CPU bound.
+    libvirt.cpus = 1
+  end
+
+  config.vm.define "trusty64" do |default|
+    default.vm.box = "trusty64"
+  end
+
+  config.vm.define "debian-7.8-32-nocm" do |default|
+    default.vm.box = "debian-7.8-32-nocm"
+  end
+
+  config.vm.define "precise64" do |default|
+    default.vm.box = "precise64"
+  end
+
+  config.vm.define "jessie" do |jessie|
+    jessie.vm.box = "thoughtbot_jessie"
+
+    jessie.vm.provision "shell",
+                       inline: "sudo sed -i s,ftp.us.debian.org,http.debian.net, /etc/apt/sources.list"
+    jessie.vm.provision "shell",
+                       inline: "if [ ! -d /usr/share/doc/curl ] ; then sudo apt-get -qq update && sudo DEBIAN_FRONTEND=noninteractive apt-get -q -y install curl ; fi"
+
+  end
+
+  # OpenSuSE provides a libvirt box, so we do not special-case this box in prepare-for-tests.sh.
+  config.vm.define "opensuse42.1" do |default|
+    default.vm.box = "opensuse/openSUSE-42.1-x86_64"
+  end
+
+  # CentOS provides a libvirt box; however, it seems to have a broken curl and/or TLS CA certificate
+  # store. Converting from VirtualBox does the job, so we do that.
+  config.vm.define "centos7" do |default|
+    default.vm.box = "centos7_convertible"
+  end
+
+end

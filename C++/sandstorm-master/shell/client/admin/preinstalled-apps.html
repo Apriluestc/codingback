@@ -1,0 +1,121 @@
+<template name="newAdminPreinstalledApps">
+{{#let txt="admin.preinstalledApps.newAdminPreinstalledApps"}}
+  <h1>
+    <ul class="admin-breadcrumbs">
+      <li>{{#linkTo route="newAdminRoot"}}{{_ "admin.title"}}{{/linkTo}}</li>
+      <li>{{_ "admin.preinstalledApps.name"}}</li>
+    </ul>
+  </h1>
+
+  {{#if hasSuccess}}
+    {{#focusingSuccessBox}}
+      {{message}}
+    {{/focusingSuccessBox}}
+  {{/if}}
+  {{#if hasError}}
+    {{#focusingErrorBox}}
+      {{message}}
+    {{/focusingErrorBox}}
+  {{/if}}
+  <p>
+    Apps you configure on this page to be pre-installed will automatically be installed (show under /apps) for new users.
+  </p>
+  <form class="admin-preinstalled-apps">
+    <div class="form-group">
+      <label>
+        {{_ (con txt "productivitySuite.label")}}
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "productivitySuite.subtext")}}
+      </span>
+      <div class="productivity-suite" role="grid">
+        <div role="rowgroup">
+          {{#each productivityApps}}
+            {{> _appRow getRowData}}
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>
+        {{_ (con txt "systemSuite.label")}}
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "systemSuite.subtext")}}
+      </span>
+      <div class="system-suite" role="grid">
+        <div role="rowgroup">
+          {{#each systemApps}}
+            {{> _appRow getRowData}}
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group all-apps-group">
+      <label>
+        {{_ (con txt "allApps.label")}}
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "allApps.subtext")}}
+      </span>
+      <div class="all-apps" role="grid">
+        <div role="rowgroup">
+          {{#each allApps}}
+            {{> _appRow getRowData}}
+          {{/each}}
+        </div>
+        {{#if paginateApps}}
+          <div role="row" class="toggle-more">
+            <div role="gridcell">
+              <button>
+                {{#if showAllApps}}
+                  <i class="icon icon-up"></i>{{_ (con txt "allApps.lessButton")}}
+                {{else}}
+                  <i class="icon icon-down"></i>{{_ (con txt "allApps.moreButton") appCountMinusShown}}
+                {{/if}}
+              </button>
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="button-row">
+      <button type="submit" class="save" disabled="{{saveDisabled}}">{{_ (con txt "saveButton")}}</button>
+    </div>
+  </form>
+{{/let}}
+</template>
+
+<template name="_appRow">
+{{#let txt="admin.preinstalledApps._appRow"}}
+  {{!-- This template expects a single AppIndex row as the data context with the following extra
+  fields:
+    preinstalledAppIds: A reactive var that is a list of string appIds. It is used to tell if this
+      app is currently selected or not.
+    formChanged: A reactive var that is a bool. It is meant to be set to true whenever a change
+      occurs.
+  --}}
+  <div role="row" class="{{#if isAppPreinstalled}}checked{{/if}}">
+    <div role="gridcell">
+      <input name="installedApp" type="checkbox" checked="{{#if isAppPreinstalled}}true{{/if}}">
+    </div>
+    <div class="name" role="gridcell">{{name}}</div>
+    <div class="description" role="gridcell">{{shortDescription}}</div>
+    <div class="download" role="gridcell">
+      {{#if showAppStatus}}
+        {{#if isAppDownloaded}}
+          <i class="download-checkmark"></i>{{_ (con txt "download.success")}}
+        {{else}}{{#if isAppDownloading}}
+          <progress value="{{progressFraction}}"></progress>
+        {{else}}{{#if isAppFailed}}
+          <i class="download-x-mark"></i>{{_ (con txt "download.failed")}}
+        {{/if}}
+        {{/if}}
+        {{/if}}
+      {{/if}}</div>
+  </div>
+{{/let}}
+</template>

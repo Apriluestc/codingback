@@ -1,0 +1,73 @@
+<template name="newAdminMaintenance">
+{{#let txt="admin.maintenanceMessage.newAdminMaintenance"}}
+  <h1>
+    <ul class="admin-breadcrumbs">
+      <li>{{#linkTo route="newAdminRoot"}}{{_ "admin.title"}}{{/linkTo}}</li>
+      <li>{{_ "admin.maintenanceMessage.name"}}</li>
+    </ul>
+  </h1>
+
+  <p>
+    {{_ (con txt "explanation")}}
+  </p>
+
+  <p>
+    {{_ (con txt "variables")}}
+  </p>
+
+  <ul>
+    <li>{{{_ (con txt "variable1")}}}</li>
+    <li>{{{_ (con txt "variable2")}}}</li>
+    <li>{{{_ (con txt "variable3")}}}</li>
+  </ul>
+
+  {{#if hasSuccess}}
+    {{#focusingSuccessBox}}
+      {{statusMessage}}
+    {{/focusingSuccessBox}}
+  {{/if}}
+  {{#if hasError}}
+    {{#focusingErrorBox}}
+      {{statusMessage}}
+    {{/focusingErrorBox}}
+  {{/if}}
+
+  <form class="maintenance-message-form">
+    <div class="form-group">
+      <label>
+        {{_ (con txt "messageText.label")}}
+        <input type="text" name="message-text" value="{{messageText}}" />
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "messageText.subtext")}}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label>
+        {{_ (con txt "maintenanceTime.label")}}
+        <input type="text" name="maintenance-time" value="{{maintenanceTime}}" />
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "maintenanceTime.subtext") exampleDate}}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label>
+        {{_ (con txt "url.label")}}
+        <input type="text" name="url" value="{{linkUrl}}" />
+      </label>
+      <span class="form-subtext">
+        {{_ (con txt "url.subtext")}}
+      </span>
+    </div>
+
+    <div class="button-row">
+      <button class="save" disabled="{{saveDisabled}}">
+        {{_ (con txt "saveButton")}}
+      </button>
+    </div>
+  </form>
+{{/let}}
+</template>

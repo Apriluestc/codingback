@@ -1,0 +1,304 @@
+<!--
+Sandstorm - Personal Cloud Sandbox
+Copyright (c) 2015 Sandstorm Development Group, Inc. and contributors
+All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<template name="sandstormAccountSettings">
+{{#let txt="accounts.accountSettings.sandstormAccountSettings"}}
+  {{setDocumentTitle}}
+
+  {{#sandstormTopbarItem name="title" priority=5 topbar=_topbar}}
+    {{_ "accounts.title"}}
+  {{/sandstormTopbarItem}}
+
+  <h1>{{_ (con txt "title")}}</h1>
+  <div class="account-settings-profile-editor">
+
+    <h3 class="title-bar">{{_ (con txt "identities.title")}}</h3>
+
+    {{#with actionCompleted}}
+      {{#if success}}
+        {{#focusingSuccessBox}}
+          {{_ (con txt "identities.success") success}}
+        {{/focusingSuccessBox}}
+      {{/if}}
+      {{#if error}}
+        {{#focusingErrorBox}}
+          {{error}}
+        {{/focusingErrorBox}}
+      {{/if}}
+    {{/with}}
+
+    <section class="profile">
+      {{>_accountProfileEditor setActionCompleted=setActionCompleted
+                               staticHost=../_staticHost}}
+    </section>
+  </div>
+
+  <div class="linked-credentials">
+
+    <h3 class="title-bar">{{_ (con txt "identities.linkedCredentials")}}</h3>
+
+    <div class="credentials-tabs">
+
+      {{#unless isLinkingNewCredential}}
+      <ul>
+        {{#each credentials}}
+        <li data-credential-id="{{_id}}">
+          {{> credentialCard .}}
+          {{> credentialManagementButtons credentialManagementButtonsData}}
+        </li>
+        {{/each}}
+      </ul>
+      {{/unless}}
+
+      <div class="account-buttons">
+        {{#if isLinkingNewCredential}}
+          <h4>{{_ (con txt "identities.linkNewIdentity.title")}}</h4>
+          {{#with linkingNewCredential=linkingNewCredentialData}}
+            {{> loginButtonsList globalAccountsUi}}
+          {{/with}}
+          <button class="account-button cancel-link-new-credential">{{_ (con txt "identities.linkNewIdentity.cancelButton")}}</button>
+        {{else}}
+          <button class="account-button logout-other-sessions" disabled={{logoutOtherSessionsInFlight}}>
+            {{_ (con txt "identities.linkNewIdentity.logoutAllButton")}}
+          </button>
+          <button class="account-button link-new-credential">{{_ (con txt "identities.linkNewIdentity.linkButton")}}</button>
+        {{/if}}
+      </div>
+    </div>
+
+  </div>
+
+  <h3 class="title-bar">{{_ (con txt "identities.email.title")}}</h3>
+  <div class="verified-emails-editor">
+    <div class="already-verified">
+      {{#if verifiedEmails}}
+      <ul>
+        {{#each verifiedEmails}}
+        <li>
+          <span class="email" title="{{email}}">{{email}}</span>
+          {{#if primary}}
+          <span class="primary-badge">{{_ (con txt "identities.email.primary")}}</span>
+          {{else}}
+          <button class="make-primary" data-email="{{email}}" checked={{primary}}>
+            {{_ (con txt "identities.email.primaryButton")}}
+          </button>
+          {{/if}}
+        </li>
+        {{/each}}
+      </ul>
+      {{else}}
+      <p>{{_ (con txt "identities.email.notFound")}}</p>
+      {{/if}}
+    </div>
+    <div class="add-new">
+      {{_ (con txt "identities.email.addNew")}}
+      {{> emailAuthenticationForm emailLoginFormData}}
+      {{> _loginButtonsMessages "" }}
+    </div>
+  </div>
+
+  {{#if isPaymentsEnabled}}
+  <div class="billing">
+  <h2>{{_ (con txt "billing.title")}}</h2>
+  {{> billingUsage db=db topbar=_topbar}}
+  {{> billingSettings db=db}}
+  </div>
+  {{/if}}
+
+  {{#if showDeleteButton}}
+  <div class="danger-zone">
+    <h3>{{_ (con txt "deleteAccount.title")}}</h3>
+    <button class="delete-account" disabled={{logoutOtherSessionsInFlight}}>
+      {{_ (con txt "deleteAccount.button")}}
+    </button>
+  </div>
+  {{/if}}
+
+  {{#if showDeletePopup}}
+    {{#modalDialogWithBackdrop onDismiss=cancelDelete class="user-confirm-delete"}}
+      {{#if deleteError}}
+        {{#focusingErrorBox}}
+          {{deleteError}}
+        {{/focusingErrorBox}}
+      {{/if}}
+
+      <h2>{{_ (con txt "deletePopup.title")}}</h2>
+      <p>{{_ (con txt "deletePopup.explanation")}}</p>
+      <p>{{_ (con txt "deletePopup.results")}}</p>
+      <ul>
+        <li>{{_ (con txt "deletePopup.result1")}}</li>
+        <li>{{_ (con txt "deletePopup.result2")}}</li>
+        <li>{{_ (con txt "deletePopup.result3")}}</li>
+        <li>{{_ (con txt "deletePopup.result4")}}</li>
+      </ul>
+      <p>
+        {{_ (con txt "deletePopup.confirm")}}
+      </p>
+      <input class="confirm" type="text">
+      <p>
+        {{_ (con txt "deletePopup.goodbye")}}
+      </p>
+      <textarea class="feedback" type="text" placeholder="{{_ (con txt "deletePopup.feedbackPlaceholder")}}" rows="3"></textarea>
+      <form class="standard-form">
+        <div class="button-row">
+          <button class="danger delete-account-real" type="button"
+           disabled={{disableDelete}}>{{_ (con txt "deletePopup.deleteButton")}}</button>
+          <button type="button" class="cancel-delete-account">{{_ (con txt "deletePopup.cancelButton")}}</button>
+        </div>
+      </form>
+    {{/modalDialogWithBackdrop}}
+  {{/if}}
+{{/let}}
+</template>
+
+<template name="sandstormAccountsFirstSignIn">
+{{#let txt="accounts.accountSettings.sandstormAccountsFirstSignIn"}}
+  <h1>{{_ (con txt "title")}}</h1>
+  <div class="single-profile-editor">
+    {{#if success}}
+      {{#focusingSuccessBox}}
+        {{_ (con txt "success") success}}
+      {{/focusingSuccessBox}}
+    {{/if}}
+
+    {{#if error}}
+      {{#focusingErrorBox}}
+        {{error}}
+      {{/focusingErrorBox}}
+    {{/if}}
+
+    {{>_accountProfileEditor termsAndPrivacy=termsAndPrivacy
+                             staticHost=_staticHost db=_db setActionCompleted=onActionCompleted}}
+  </div>
+{{/let}}
+</template>
+
+<template name="accountSuspended">
+{{#let txt="accounts.accountSettings.accountSuspended"}}
+  <h1>
+    {{_ (con txt "title")}}
+  </h1>
+
+  <h2>
+    {{#if timeUntilDeletion}}
+    {{_ (con txt "deletedIn") timeUntilDeletion}}
+    {{else}}
+    {{_ (con txt "suspended")}}
+    {{/if}}
+  </h2>
+  <button class="restore-account">{{_ (con txt "restoreButton")}}</button>
+  <button class="logout">{{_ (con txt "logoutButton")}}</button>
+{{/let}}
+</template>
+
+<template name="_accountProfileEditor">
+{{#let txt="accounts.accountSettings._accountProfileEditor"}}
+{{!-- Expected arguments to data context:
+setActionCompleted: (optional) Function.  Callback triggered on profile saved or picture updated.
+   termsAndPrivacy: (optional) Object containing Strings termsUrl and/or privacyUrl.
+        staticHost: String.  Used to generate avatar URL.
+                db: instance of SandstormDb (optional, but needed for sandstormAccountsFirstSignIn?)
+       hideButtons: Boolean (optional, default value is false)
+--}}
+  <div class="profile-editor">
+    <form class="account-profile-editor">
+      <ul>
+        <li class="form-group">
+          <label>{{_ (con txt "picture.label")}}</label>
+          <div class="picture-row">
+            <div class="picture-box">
+              <img src="{{profile.pictureUrl}}">
+            </div>
+            <input type="file" name="picture" style="display:none">
+            <div class="form-subtext">
+              <button type="button" name="upload-picture">{{_ (con txt "picture.uploadButton")}}</button>
+              <p>{{_ (con txt "picture.subtext")}}</p>
+              <p>{{_ (con txt "picture.maxSize")}}</p>
+            </div>
+          </div>
+        </li>
+
+        <li class="form-group">
+          <label>
+            {{_ (con txt "fullName.label")}}
+            <input type="text" name="nameInput" value="{{profile.name}}"
+                   placeholder="{{_ (con txt "fullName.placeholder")}}" required>
+          </label>
+          <span class="form-subtext">
+            {{_ (con txt "fullName.subtext")}}
+          </span>
+        </li>
+
+        <li class="form-group handle">
+          <label>{{_ (con txt "handle.label")}}
+            <div class="input-container">
+              <input type="text" name="handle" value="{{profile.handle}}"
+                     placeholder="{{_ (con txt "handle.placeholder")}}" pattern="^[a-z_][a-z0-9_]*$"
+                     title="{{_ (con txt "handle.hint")}}" required>
+            </div>
+          </label>
+          <span class="form-subtext">
+            {{_ (con txt "handle.subtext")}}
+          </span>
+        </li>
+
+        <li class="form-group">
+          {{#with pronoun=profile.pronoun}}
+          <label>
+            {{_ (con txt "pronoun.label")}}
+            <select name="pronoun">
+              <option value="neutral" selected="{{isNeutral pronoun}}">{{_ (con txt "pronoun.neutral")}}</option>
+              <option value="male" selected="{{isMale pronoun}}">{{_ (con txt "pronoun.male")}}</option>
+              <option value="female" selected="{{isFemale pronoun}}">{{_ (con txt "pronoun.female")}}</option>
+              <option value="robot" selected="{{isRobot pronoun}}">{{_ (con txt "pronoun.robot")}}</option>
+            </select>
+          </label>
+          {{/with}}
+        </li>
+
+        {{#unless hasCompletedSignup}}
+          {{#with termsAndPrivacy}}
+            <li class="form-group">
+              <label>
+                <input type="checkbox" name="agreedToTerms" required>{{_ (con txt "agreedToTerms.agreeTo")}}
+                {{#if termsUrl}}<a target="_blank" href="{{termsUrl}}">{{_ (con txt "agreedToTerms.termsOfServiceLink")}}</a>
+                {{#if privacyUrl}}{{_ (con txt "agreedToTerms.and")}}{{/if}}{{/if}}{{#if privacyUrl}}
+                <a target="_blank" href="{{privacyUrl}}">{{_ (con txt "agreedToTerms.privacyLink")}}</a>{{/if}}.
+              </label>
+            </li>
+          {{/with}}
+          {{#if isPaymentsEnabled}}
+            {{> billingOptins . }}
+          {{/if}}
+        {{/unless}}
+
+        {{#unless hideButtons}}
+        <li class="button-row">
+          <button disabled="{{profileSaved}}" type="submit">
+            {{#if hasCompletedSignup}}{{_ (con txt "saveButton")}}{{else}}{{_ (con txt "continueButton")}}{{/if}}
+          </button>
+          {{#unless hasCompletedSignup}}
+          <button class="logout" type="button">{{_ (con txt "cancelButton")}}</button>
+          {{/unless}}
+        </li>
+        {{/unless}}
+      </ul>
+    </form>
+  </div>
+{{/let}}
+</template>

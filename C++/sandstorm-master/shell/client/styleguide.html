@@ -1,0 +1,59 @@
+<template name="styleguide">
+{{!-- Insert whatever HTML you want to demonstrate here. --}}
+<div class="styleguide">
+<h1>{{_ "styleguide.title"}}</h1>
+
+<p>{{_ "styleguide.note"}}</p>
+
+<h2>{{_ "styleguide.copyRules.title"}}</h2>
+<ul>
+  <li>{{_ "styleguide.copyRules.rule1"}}</li>
+  <li>{{_ "styleguide.copyRules.rule2"}}</li>
+  <li>{{_ "styleguide.copyRules.rule3"}}</li>
+  <li>{{_ "styleguide.copyRules.rule4"}}</li>
+  <li>{{_ "styleguide.copyRules.rule5"}}</li>
+</ul>
+
+<h2>{{_ "styleguide.styleRules.title"}}</h2>
+<ul>
+  <li>{{_ "styleguide.styleRules.rule1"}}</li>
+  <li>{{_ "styleguide.styleRules.rule2"}}</li>
+  <li>{{_ "styleguide.styleRules.rule3"}}</li>
+</ul>
+
+<h2>{{_ "styleguide.forms.title"}}</h2>
+
+<ul>
+  <li>{{{_ "styleguide.forms.rule1"}}}</li>
+  <li>{{_ "styleguide.forms.rule2"}}</li>
+  <li>{{_ "styleguide.forms.rule3"}}</li>
+  <li>
+    {{_ "styleguide.forms.rule4"}}
+    <ul>
+      <li>{{_ "styleguide.forms.rule4-1"}}</li>
+      <li>{{_ "styleguide.forms.rule4-2"}}</li>
+      <li>{{_ "styleguide.forms.rule4-3"}}</li>
+    </ul>
+  </li>
+</ul>
+
+<p>{{_ "styleguide.example.title"}}</p>
+
+<form class="standard-form">
+  <div class="form-group">
+    <label>
+      {{_ "styleguide.example.label"}}
+      <input type="email" placeholder="{{_ "styleguide.example.placeholder"}}" />
+    </label>
+    <span class="form-subtext">{{_ "styleguide.example.subtext"}}</span>
+  </div>
+
+
+  <div class="button-row">
+    <button type="submit">{{_ "styleguide.example.submitButton"}}</button>
+    <button type="button">{{_ "styleguide.example.discardButton"}}</button>
+  </div>
+</form>
+
+</div>
+</template>
