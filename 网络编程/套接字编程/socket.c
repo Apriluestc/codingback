@@ -1,4 +1,3 @@
-/*
 socket 常见 API
 
 int socket(int domain, int type, int protocol);  //创建文件描述符
@@ -133,7 +132,7 @@ void __main()
 
 
 
-*/
+
 
 
 //多线程调用inet_ntoa会出现以下情况
