@@ -1,15 +1,29 @@
 #include <iostream>
 #include "util.hpp"
+#include "httplib.h"
+#include "json.h"
 
 int main()
 {
+    using namespace httplib;
     Server server;
-    server.Get("/", [](const Request& req, Response& resp));
-    std::string req_josn;
-    std::string resp_josn;
-    complier::ComplierAndRun(&req_josn, &resp_josn);
-    resp.set_content();
+    server.Get("/compile", [](const Request& req, Response& resp));
+    {
+        
+        (void)req;
+        std::string req_json;
+        std::string resp_json;
+        Compiler::CompileAndRun(&req_json, &resp_json);
+        resp.set_content(resp_json, "text/plain");
+    }
+    /*
+    (void)req;
+    std::string req_json;
+    std::string resp_json;
+    Compiler::CompileAndRun(&req_json, &resp_json);
+    //resp.set_content();
 
-    server.listen("IP", 端口号);
+    //server.listen("0.0.0.0", 9092);
+    */
     return 0;
 }
